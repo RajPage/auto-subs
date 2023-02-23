@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(auto-subs C)
 
 add_subdirectory(lib/glfw)
+add_subdirectory(lib/FFmpeg)
 
 add_definitions(-DGL_SILENCE_DEPRECATION)
 
@@ -15,4 +16,4 @@ else()
 endif()
 
 add_executable(auto-subs src/main.c)
-target_link_libraries(auto-subs glfw ${EXTRA_LIBS})
+target_link_libraries(auto-subs FFmpeg glfw ${EXTRA_LIBS})

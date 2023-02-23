@@ -3,6 +3,8 @@ project(auto-subs C)
 
 add_subdirectory(lib/glfw)
 
+add_definitions(-DGL_SILENCE_DEPRECATION)
+
 if(APPLE)
     list(APPEND EXTRA_LIBS "-framework OpenGL")
 elseif(WIN32)

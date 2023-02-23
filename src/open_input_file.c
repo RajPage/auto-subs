@@ -197,5 +197,8 @@ int open_input_file(const char *filename,
       break;
   }
 
+  // Need to play with
+  // ffplay -f f32le -ac 1 -ar 44100 output.aac
+
   return 0;
 }

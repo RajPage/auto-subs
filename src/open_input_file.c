@@ -1,13 +1,77 @@
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/opt.h>
+#include <libavutil/samplefmt.h>
+#include <libavutil/timestamp.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+static FILE *audio_dst_file = NULL;
+static AVFrame *frame = NULL;
+static AVPacket *pkt = NULL;
+AVCodecContext *av_codec_ctx;
+static int audio_frame_count = 0;
+
+static int output_audio_frame(AVFrame *frame) {
+  size_t unpadded_linesize =
+      frame->nb_samples * av_get_bytes_per_sample(frame->format);
+  printf("audio_frame n:%d nb_samples:%d pts:%s\n", audio_frame_count++,
+         frame->nb_samples,
+         av_ts2timestr(frame->pts, &av_codec_ctx->time_base));
+
+  /* Write the raw audio data samples of the first plane. This works
+   * fine for packed formats (e.g. AV_SAMPLE_FMT_S16). However,
+   * most audio decoders output planar audio, which uses a separate
+   * plane of audio samples for each channel (e.g. AV_SAMPLE_FMT_S16P).
+   * In other words, this code will write only the first audio channel
+   * in these cases.
+   * You should use libswresample or libavfilter to convert the frame
+   * to packed data. */
+  fwrite(frame->extended_data[0], 1, unpadded_linesize, audio_dst_file);
+
+  return 0;
+}
+
+static int decode_packet(AVCodecContext *dec, const AVPacket *pkt) {
+  int ret = 0;
+
+  // submit the packet to the decoder
+  ret = avcodec_send_packet(dec, pkt);
+  if (ret < 0) {
+    fprintf(stderr, "Error submitting a packet for decoding\n", );
+    return ret;
+  }
+
+  // get all the available frames from the decoder
+  while (ret >= 0) {
+    ret = avcodec_receive_frame(dec, frame);
+    if (ret < 0) {
+      // those two return values are special and mean there is no output
+      // frame available, but there were no errors during decoding
+      if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
+        return 0;
+
+      fprintf(stderr, "Error during decoding\n");
+      return ret;
+    }
+
+    // write the frame data to output file
+    if (dec->codec->type == AVMEDIA_TYPE_AUDIO)
+      ret = output_audio_frame(frame);
+
+    av_frame_unref(frame);
+    if (ret < 0)
+      return ret;
+  }
+
+  return 0;
+}
 
 int open_input_file(const char *filename,
                     AVFormatContext **input_format_context,
                     AVCodecContext **input_codec_context) {
-  AVCodecContext *av_codec_ctx;
+  int ret;
+
   AVCodecParameters *av_codec_params;
   AVCodec *av_codec;
   AVStream *stream;
@@ -104,6 +168,34 @@ int open_input_file(const char *filename,
   // Save decoder context
   *input_codec_context = av_codec_ctx;
   *input_format_context = av_format_ctx;
+
+  audio_dst_file = fopen("output.aac", "wb");
+
+  frame = av_frame_alloc();
+  if (!frame) {
+    fprintf(stderr, "Could not allocate frame\n");
+    return -1;
+  }
+
+  pkt = av_packet_alloc();
+  if (!pkt) {
+    fprintf(stderr, "Could not allocate packet\n");
+    return -1;
+  }
+
+  if (stream)
+    printf("Demuxing audio from file '%s' into output.aac\n", filename);
+
+  /* read frames from the file */
+  while (av_read_frame(av_format_ctx, pkt) >= 0) {
+    // check if the packet belongs to a stream we are interested in, otherwise
+    // skip it
+    if (pkt->stream_index == audio_stream_index)
+      ret = decode_packet(av_codec_ctx, pkt);
+    av_packet_unref(pkt);
+    if (ret < 0)
+      break;
+  }
 
   return 0;
 }

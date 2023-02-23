@@ -21,8 +21,11 @@ endif()
 
 list(APPEND SOURCES
     src/main.c 
+    # src/demux.c
     # src/load_frame.c
     src/open_input_file.c
+    src/open_output_file.c
+    # src/transcode_aac.c
 )
 
 add_executable(auto-subs ${SOURCES})

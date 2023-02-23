@@ -6,7 +6,6 @@ Automatic subtitle generator
 
 ### Todo
 
-- [ ] Extract Audio from Video
 - [ ] Transcribe Audio to Text
 - [ ] Detect Language
 - [ ] Translate Text
@@ -14,7 +13,9 @@ Automatic subtitle generator
 
 ### In Progress
 
-- [ ] Make
-- [ ] Load Video File
+- [ ] Extract Audio from Video
 
 ### Done ✓
+
+- [x] Make
+- [x] Load Video File

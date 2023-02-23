@@ -1,3 +1,4 @@
+#include "libavformat/avformat.h"
 #include <GLFW/glfw3.h>
 #include <libavcodec/avcodec.h>
 #include <stdbool.h>
@@ -5,10 +6,13 @@
 #include <stdlib.h>
 
 bool open_input_file(const char *filename,
+                     AVFormatContext **input_format_context,
                      AVCodecContext **input_codec_context);
 
 int main(int argc, char **argv) {
-  AVCodecContext *av_codec_context;
+  // AVFormatContext holds the header information from the format (Container)
+  AVFormatContext *av_format_context, *output_format_context = NULL;
+  AVCodecContext *av_codec_context = NULL, *output_codec_context = NULL;
   GLFWwindow *window;
   if (!glfwInit()) {
     printf("Couldn't init glfw");
@@ -20,31 +24,14 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  // unsigned char *data = malloc(100 * 100 * 3 + 2);
-  // for (int y = 0; y < 100; ++y) {
-  //   for (int x = 0; x < 100; ++x) {
-  //     data[y * 100 * 3 + x * 3] = 0xff;
-  //     data[y * 100 * 3 + x * 3 + 1] = 0x00;
-  //     data[y * 100 * 3 + x * 3 + 2] = 0x00;
-  //   }
-  // }
-  // for (int y = 25; y < 75; ++y) {
-  //   for (int x = 25; x < 75; ++x) {
-  //     data[y * 100 * 3 + x * 3] = 0x00;
-  //     data[y * 100 * 3 + x * 3 + 1] = 0x00;
-  //     data[y * 100 * 3 + x * 3 + 2] = 0xff;
-  //   }
-  // }
-
-  int frame_width, frame_height;
-  unsigned char *frame_data;
-  if (!open_input_file("/Users/Raj/code/sides/auto-subs/hush.mp4",
-                       &av_codec_context)) {
-    printf("Couldn't load");
+  // int frame_width, frame_height;
+  // unsigned char *frame_data;
+  if (open_input_file("/Users/Raj/code/sides/auto-subs/hush.mp4",
+                      &av_format_context, &av_codec_context) < 0) {
+    printf("Couldn't load\n");
     return 1;
-  } else {
-    printf("Loaded the video");
   }
+  printf("Loaded the video\n");
 
   // glfwMakeContextCurrent(window);
   // // Generate a Texture

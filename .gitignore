@@ -1,2 +1,5 @@
 .DS_Store
 build/
+lib/FFmpeg/Makefile
+lib/FFmpeg/cmake_install.cmake
+lib/FFmpeg/CMakeFiles/*

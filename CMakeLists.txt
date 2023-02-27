@@ -20,11 +20,16 @@ else()
 endif()
 
 list(APPEND SOURCES
-    src/main.c 
+    # src/main.c 
     # src/demux.c
     # src/load_frame.c
+    src/av_player.c
+    src/allocate_frame.c
+    src/find_stream.c
+    src/load_frame.c
+    src/open_codec.c
     src/open_input_file.c
-    src/open_output_file.c
+    # src/open_output_file.c
     # src/transcode_aac.c
 )
 

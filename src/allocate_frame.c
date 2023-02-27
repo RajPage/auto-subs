@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+/// @brief Allocate frame
+/// @param[out] frame
+/// @return Boolean (true if successful)
 bool allocate_frame(AVFrame **frame) {
   *frame = av_frame_alloc();
   if (*frame == NULL) {

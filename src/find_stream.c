@@ -2,8 +2,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool find_stream(AVFormatContext *input_context, int *stream_index,
-                 const char *type) {
+/// @brief Find and returns the first stream of the given type
+/// @param      input_context   Format context of opened file
+/// @param      type            "audio" | "video"
+/// @param[out] stream_index    Index of the stream
+/// @return Boolean (false if not found)
+bool find_stream(AVFormatContext *input_context, const char *type,
+                 int *stream_index) {
   for (int i = 0; i < input_context->nb_streams; i++) {
 
     // Available Info

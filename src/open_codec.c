@@ -2,8 +2,12 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool open_codec(AVCodecContext **codec_context,
-                AVCodecParameters *codec_parameters) {
+/// @brief Finds and opens the codec for the given parameters
+/// @param      codec_parameters    Codec parameters for the selected stream
+/// @param[out] codec_context       Code Context for the selected stream
+/// @return Boolean (true if successful)
+bool open_codec(AVCodecParameters *codec_parameters,
+                AVCodecContext **codec_context) {
   // Find the decoder for the codec
   const AVCodec *codec = avcodec_find_decoder(codec_parameters->codec_id);
   if (codec == NULL) {

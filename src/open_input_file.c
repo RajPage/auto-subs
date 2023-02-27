@@ -2,8 +2,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool open_input_file(AVFormatContext **input_format_context,
-                     const char *file_name) {
+/**
+ * Open an input file
+ * @param       file_name            File to be opened
+ * @param[out]  input_format_context Format context of opened file
+ * @return Boolean (true if successful)
+ */
+bool open_input_file(const char *file_name,
+                     AVFormatContext **input_format_context) {
   // Open the input file to read from it
   AVFormatContext *av_format_ctx = avformat_alloc_context();
   if (!av_format_ctx) {
